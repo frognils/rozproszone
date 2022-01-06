@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public class User
 {
@@ -60,6 +61,15 @@ public class Server
             else handleRegularMessage();
         }
 
+        void Send(IPEndPoint addr, String s)
+        {
+            UdpClient sender = new UdpClient();
+            sender.Connect("localhost", addr.Port);
+            bytes = Encoding.ASCII.GetBytes(s);
+            sender.Send(bytes, bytes.Length);
+            sender.Close();
+        }
+
         void handleRegularMessage()
         {
             Console.WriteLine($"Received: '{data}' from {users[address]}");
@@ -82,24 +92,24 @@ public class Server
 
         void login()
         {
-            sock.Connect("localhost", address.Port);
+            
             nick = data.Split()[1];
             users[address] = new User(nick);
             Console.WriteLine($"{address} logged in as {nick}");
-            bytes = Encoding.ASCII.GetBytes($"{nick} joined the server\n");
-            sock.Send(bytes, bytes.Length);
+
+            Send(address, $"{nick} joined the server\n");
         }
 
         void createGroup()
         {
-            sock.Connect("localhost", address.Port);
+            
             string groupName = data.Split()[1];
             groups.Add(groupName);
 
             string serverMessage = $"{users[address].getName()} created group {groupName}";
             Console.WriteLine(serverMessage);
-            bytes = Encoding.ASCII.GetBytes(serverMessage + "\n");
-            sock.Send(bytes, bytes.Length);
+
+            Send(address, serverMessage);
         }
 
         void listAllGroups()
@@ -114,7 +124,7 @@ public class Server
 
         void listGroups(List<string> _groups)
         {
-            sock.Connect("localhost", address.Port);
+            
             string listedGroups = "";
 
             for (int i = 0; i < _groups.Count; i++)
@@ -122,59 +132,58 @@ public class Server
                 listedGroups = listedGroups + _groups[i] + '\n';
             }
 
-            bytes = Encoding.ASCII.GetBytes(listedGroups);
-            sock.Send(bytes, bytes.Length);
+            Send(address, listedGroups);
         }
 
         void joinGroup()
         {
-            sock.Connect("localhost", address.Port);
+            
             string groupName = data.Split()[1];
             users[address].addGroup(groupName);
 
             string serverMessage = $"{users[address].getName()} joined group {groupName}";
             Console.WriteLine(serverMessage);
-            bytes = Encoding.ASCII.GetBytes(serverMessage + "\n");
-            sock.Send(bytes, bytes.Length);
+
+            Send(address, serverMessage + "\n");
         }
 
         void addToGroup()
         {
-            sock.Connect("localhost", address.Port);
+            
             string userName = data.Split()[1];
             string groupName = data.Split()[2];
 
             User user = null;
             List<User> _users = new List<User>(users.Values);
 
-            for (int i = 0; i < _users.Count;i++)
+            for (int i = 0; i < _users.Count; i++)
             {
                 if (_users[i].getName() == userName)
                 {
                     user = _users[i];
                     break;
-                }               
+                }
             }
 
             string serverMessage;
 
             if (user == null)
             {
-                bytes = Encoding.ASCII.GetBytes($"User {userName} not found\n");
-            } 
+                serverMessage = $"User {userName} not found\n";
+            }
             else if (!groups.Contains(groupName))
             {
-                bytes = Encoding.ASCII.GetBytes($"Group {groupName} does not exist\n");
+                serverMessage = $"Group {groupName} does not exist\n";
             }
             else
             {
                 user.addGroup(groupName);
                 serverMessage = $"{userName} was added to group {groupName} by {users[address].getName()}";
                 Console.WriteLine(serverMessage);
-                bytes = Encoding.ASCII.GetBytes(serverMessage + "\n");
             }
 
-            sock.Send(bytes, bytes.Length);
+            Send(address, serverMessage);
+
         }
     }
 }

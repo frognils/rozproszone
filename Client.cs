@@ -39,14 +39,8 @@ public class Server
         }
     }
 
-    static void Msg(byte[] b, UdpClient u)
-    {
-        while (true)
-        {
-            Send("", b, u);
-        }
-    }
-    static  async Task Receive(byte[] b, UdpClient u)
+
+    static async Task Receive(byte[] b, UdpClient u)
     {
         await Task.Run(() =>
         {
