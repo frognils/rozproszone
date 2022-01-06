@@ -11,11 +11,18 @@ public class Server
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine("\nKomendy:");
-        Console.WriteLine("/login <nazwa>\t\t\tzaloguj jako <nazwa>");
-        Console.WriteLine("/creategroup <grupa>\t\tutwórz grupę <grupa>");
-        Console.WriteLine("/groups\t\t\t\twyświetl istniejące grupy");
-        Console.WriteLine("/join <grupa>\t\t\tdołącz do grupy <grupa>");
-        Console.WriteLine("/add <nazwa> <grupa>\t\tdodaj użytkownika <nazwa> do grupy <grupa>");
+        Console.WriteLine("/login <nazwa>\t\t\t\tzaloguj jako <nazwa>");
+        Console.WriteLine("/creategroup <grupa>\t\t\tutwórz grupę <grupa>");
+        Console.WriteLine("/cgroup <grupa>\t\t\t\tutwórz grupę <grupa>");
+        Console.WriteLine("/groups\t\t\t\t\twyświetl istniejące grupy");
+        Console.WriteLine("/mygroups\t\t\t\twyświetl grupy, do których należysz");
+        Console.WriteLine("/join <grupa>\t\t\t\tdołącz do grupy <grupa>");
+        Console.WriteLine("/add <nazwa> <grupa>\t\t\tdodaj użytkownika <nazwa> do grupy <grupa>");
+        Console.WriteLine("/leave <grupa>\t\t\t\topuść grupę <grupa>");
+        Console.WriteLine("/remove <nazwa> <grupa>\t\t\tusuń użytkownika <nazwa> z grupy <grupa>");
+        Console.WriteLine("/groupmessage <grupa> <wiadomość>\twyślij <wiadomość> do grupy <grupa>");
+        Console.WriteLine("/groupmmsg <grupa> <wiadomość>\t\twyślij <wiadomość> do grupy <grupa>");
+        Console.WriteLine("/gm <grupa> <wiadomość>\t\t\twyślij <wiadomość> do grupy <grupa>");
         Console.WriteLine("");
         Console.ForegroundColor = ConsoleColor.White;
     }
