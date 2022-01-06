@@ -10,8 +10,13 @@ public class Server
     static void help()
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("\nKomendy:\n");
+        Console.WriteLine("\nKomendy:");
         Console.WriteLine("/login <nazwa>\t\t\tzaloguj jako <nazwa>");
+        Console.WriteLine("/creategroup <grupa>\t\tutwórz grupę <grupa>");
+        Console.WriteLine("/groups\t\t\t\twyświetl istniejące grupy");
+        Console.WriteLine("/join <grupa>\t\t\tdołącz do grupy <grupa>");
+        Console.WriteLine("/add <nazwa> <grupa>\t\tdodaj użytkownika <nazwa> do grupy <grupa>");
+        Console.WriteLine("");
         Console.ForegroundColor = ConsoleColor.White;
     }
 
