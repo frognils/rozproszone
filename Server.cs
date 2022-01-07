@@ -53,7 +53,9 @@ public class Server
         Dictionary<IPEndPoint, User> users = new Dictionary<IPEndPoint, User>();
         List<string> groups = new List<string>();
 
-        UdpClient sock = new UdpClient(2222);
+        UdpClient sock = new UdpClient();
+        sock.ExclusiveAddressUse = false;
+        sock.Client.Bind(new IPEndPoint(IPAddress.Loopback, 2222));
         const int buf_size = 1024;
         byte[] bytes = new byte[buf_size];
         string data = null;
@@ -71,13 +73,16 @@ public class Server
             else handleRegularMessage();
         }
 
-        void Send(IPEndPoint addr, String s)
+        async Task Send(IPEndPoint addr, string s)
         {
-            UdpClient sender = new UdpClient();
-            sender.Connect("localhost", addr.Port);
-            bytes = Encoding.ASCII.GetBytes(s);
-            sender.Send(bytes, bytes.Length);
-            sender.Close();
+            await Task.Run(() =>
+            {
+                UdpClient sender = new UdpClient(2222);
+                sender.Connect("localhost", addr.Port);
+                bytes = Encoding.ASCII.GetBytes(s);
+                sender.Send(bytes, bytes.Length);
+                sender.Close();
+            });
         }
 
         void handleRegularMessage()
@@ -180,7 +185,7 @@ public class Server
                         Send(address, $"You are not a member of {groupName} group\n");
                     }
                 }
-            } 
+            }
             else
             {
                 Send(address, $"Group {groupName} does not exist\n");
@@ -212,7 +217,8 @@ public class Server
                     user.addGroup(groupName);
                     serverMessage = $"You have added {userName} to group {groupName}\n";
                     Console.WriteLine($"{userName} has been added to group {groupName} by {users[address].getName()}");
-                } else
+                }
+                else
                 {
                     user.removeGroup(groupName);
                     serverMessage = $"You have remove {userName} from group {groupName}\n";
@@ -232,9 +238,10 @@ public class Server
             {
                 List<User> usersInGroup = findUsersByGroup(groupName);
                 List<IPEndPoint> addressesList = new List<IPEndPoint>();
-                
+
                 //@todo
-            } else
+            }
+            else
             {
                 Send(address, $"You are not a member of {groupName} group\n");
             }
