@@ -153,7 +153,7 @@ public class Server
         // @todo check if this works when Server messages are fixed
         void joinOrLeaveGroup(string operation)
         {
-            if (operation != "join" || operation != "leave") return;
+            if (operation != "join" && operation != "leave") return;
 
             string groupName = data.Split()[1];
 
@@ -195,7 +195,7 @@ public class Server
         // @todo check if this works when Server messages are fixed
         void addToOrRemoveFromGroup(string operation)
         {
-            if (operation != "add" || operation != "remove") return;
+            if (operation != "add" && operation != "remove") return;
 
             string userName = data.Split()[1];
             string groupName = data.Split()[2];
