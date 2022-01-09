@@ -91,11 +91,13 @@ public class Server
                 sender.Send(bytes, bytes.Length);
                 sender.Close();
             });
+            
         }
 
         void handleRegularMessage()
         {
-            Console.WriteLine($"Received: '{data}' from {users[address]}");
+            Console.WriteLine($"general message: '{data}' from {users[address]}");
+            messageAll();
         }
 
         void handleCommand()
@@ -233,6 +235,19 @@ public class Server
             Send(address, serverMessage);
         }
 
+        void messageAll()
+        {
+           foreach (User user in users.Values)
+            {
+                User sendingUser = users[address];
+                if (user != sendingUser)
+                {
+                    Task sending = Send(user.getAddress(), String.Join(":", sendingUser.getName(), data));
+                    sending.Wait();
+                }
+            }
+        }
+
         void messageGroup()
         {
             string groupName = data.Split()[1];
@@ -250,7 +265,8 @@ public class Server
 
                 usersInGroup.ForEach(async user =>
                 {
-                    await Send(user.getAddress(), serverMessage + "\n");
+                    Task sending = Send(user.getAddress(), serverMessage + "\n");
+                    sending.Wait();
                 });
             }
             else
