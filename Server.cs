@@ -96,7 +96,7 @@ public class Server
 
         void handleRegularMessage()
         {
-            Console.WriteLine($"general message: '{data}' from {users[address]}");
+            Console.WriteLine($"general message: '{data}' from {users[address].getName()}");
             messageAll();
         }
 
