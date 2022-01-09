@@ -8,21 +8,29 @@ using System.Threading.Tasks;
 public class User
 {
     string name = "";
+    IPEndPoint address;
     List<string> groups = new List<string>();
 
-    public User(string name)
+    public User(string name, IPEndPoint address)
     {
         this.name = name;
+        this.address = address;
     }
-    public User(string name, List<string> groups)
+    public User(string name, IPEndPoint address, List<string> groups)
     {
         this.name = name;
+        this.address = address;
         this.groups = groups;
     }
 
     public string getName()
     {
         return this.name;
+    }
+
+    public IPEndPoint getAddress()
+    {
+        return this.address;
     }
 
     public List<string> getGroups()
@@ -114,7 +122,7 @@ public class Server
         void login()
         {
             nick = data.Split()[1];
-            users[address] = new User(nick);
+            users[address] = new User(nick, address);
             Console.WriteLine($"{address} logged in as {nick}");
 
             Send(address, $"{nick} joined the server\n");
@@ -125,10 +133,8 @@ public class Server
             string groupName = data.Split()[1];
             groups.Add(groupName);
 
-            string serverMessage = $"{users[address].getName()} created group {groupName}";
-            Console.WriteLine(serverMessage);
-
-            Send(address, serverMessage);
+            Console.WriteLine($"{users[address].getName()} created group {groupName}");
+            Send(address, $"You have created group {groupName}\n");
         }
 
         void listGroups(List<string> _groups)
@@ -150,7 +156,6 @@ public class Server
             Send(address, listedGroups);
         }
 
-        // @todo check if this works when Server messages are fixed
         void joinOrLeaveGroup(string operation)
         {
             if (operation != "join" && operation != "leave") return;
@@ -192,7 +197,6 @@ public class Server
             }
         }
 
-        // @todo check if this works when Server messages are fixed
         void addToOrRemoveFromGroup(string operation)
         {
             if (operation != "add" && operation != "remove") return;
@@ -232,14 +236,22 @@ public class Server
         void messageGroup()
         {
             string groupName = data.Split()[1];
-            string message = data.Split()[2];
+            List<string> messageList = new List<string>(data.Split());
+            messageList.RemoveRange(0, 2); // index 0: command, index 1: groupName, from index 2 it is message
+            string message = listToString(messageList, " ");
 
             if (users[address].isInGroup(groupName))
             {
                 List<User> usersInGroup = findUsersByGroup(groupName);
                 List<IPEndPoint> addressesList = new List<IPEndPoint>();
+                string serverMessage = $"{users[address].getName()}({groupName}): {message}";
 
-                //@todo
+                Console.WriteLine(serverMessage);
+
+                usersInGroup.ForEach(async user =>
+                {
+                    await Send(user.getAddress(), serverMessage + "\n");
+                });
             }
             else
             {
@@ -265,8 +277,32 @@ public class Server
 
         List<User> findUsersByGroup(string groupName)
         {
-            // @todo
-            return new List<User>();
+            List<User> usersList = new List<User>(users.Values);
+            List<User> usersInGroupList = new List<User>();
+
+            for (int i = 0; i < usersList.Count; i++)
+            {
+                User currentUser = usersList[i];
+
+                if (currentUser.getGroups().Contains(groupName))
+                {
+                    usersInGroupList.Add(currentUser);
+                }
+            }
+
+            return usersInGroupList;
+        }
+
+        string listToString(List<string> list, string delimiter = "")
+        {
+            string s = "";
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                s += list[i] + delimiter;
+            }
+
+            return s.Substring(0, s.Length - delimiter.Length);
         }
     }
 }
