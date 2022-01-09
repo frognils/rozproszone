@@ -118,6 +118,7 @@ public class Server
                 case "/groupmessage": // same as /gm
                 case "/groupmsg": // same as /gm
                 case "/gm": messageGroup(); break;
+                case "/pm": messagePriv(); break;
             }
         }
 
@@ -246,6 +247,42 @@ public class Server
                     sending.Wait();
                 }
             }
+        }
+
+        void messagePriv()
+        {
+            string userName = data.Split()[1];
+            string serverMessage;
+            User recivingUser = findUserByName(userName);
+            User sendingUser = users[address];
+
+            List<string> messageList = new List<string>(data.Split());
+            messageList.RemoveRange(0, 2);
+            if (messageList == null || data.Split().Length < 3)
+            {
+                serverMessage = $"Message can't be empty\n";
+                Send(address, serverMessage);
+            }
+            else
+            {
+                if (recivingUser == null)
+                {
+                    serverMessage = $"User {userName} not found\n";
+                    Send(address, serverMessage);
+                }
+                else if (recivingUser != sendingUser)
+                {
+                    string message = listToString(messageList, " ");
+                    Task sending = Send(recivingUser.getAddress(), String.Join(":", sendingUser.getName(), message));
+                    sending.Wait();
+                }
+                else
+                {
+                    serverMessage = $"You can't send message to yourself\n";
+                    Send(address, serverMessage);
+                }
+            }
+
         }
 
         void messageGroup()
