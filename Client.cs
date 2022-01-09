@@ -24,12 +24,12 @@ public class Server
         Console.WriteLine("/groupmmsg <grupa> <wiadomość>\t\twyślij <wiadomość> do grupy <grupa>");
         Console.WriteLine("/gm <grupa> <wiadomość>\t\t\twyślij <wiadomość> do grupy <grupa>");
         Console.WriteLine("/pm <użytkownik> <wiadomość>\t\t\twyślij <wiadomość> do użytkownika <użytkownik>");
-        Console.WriteLine("");
         Console.ForegroundColor = ConsoleColor.White;
     }
 
     static void Send(String msg, byte[] b, UdpClient u)
     {
+        char command_prefix = '/';
         Boolean incorrect = true;
         while (incorrect)
         {
@@ -43,6 +43,11 @@ public class Server
                 incorrect = false;
                 b = Encoding.ASCII.GetBytes(s);
                 u.Send(b, b.Length);
+                Console.SetCursorPosition(0, Console.CursorTop - 1);
+                if (s[0] != command_prefix)
+                {
+                    Console.WriteLine($"[{DateTime.Now}]\t{s}");
+                }
             }
         }
     }

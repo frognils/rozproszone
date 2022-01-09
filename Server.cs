@@ -87,11 +87,11 @@ public class Server
             {
                 UdpClient sender = new UdpClient(2222);
                 sender.Connect("localhost", addr.Port);
-                bytes = Encoding.ASCII.GetBytes(s);
+                bytes = Encoding.ASCII.GetBytes($"[{DateTime.Now}]\t{s}");
                 sender.Send(bytes, bytes.Length);
                 sender.Close();
             });
-            
+
         }
 
         void handleRegularMessage()
@@ -238,7 +238,7 @@ public class Server
 
         void messageAll()
         {
-           foreach (User user in users.Values)
+            foreach (User user in users.Values)
             {
                 User sendingUser = users[address];
                 if (user != sendingUser)
