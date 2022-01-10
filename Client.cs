@@ -31,6 +31,7 @@ public class Server
         Console.WriteLine("/groupmmsg <grupa> <wiadomość>\t\twyślij <wiadomość> do grupy <grupa>");
         Console.WriteLine("/gm <grupa> <wiadomość>\t\t\twyślij <wiadomość> do grupy <grupa>");
         Console.WriteLine("/pm <użytkownik> <wiadomość>\t\t\twyślij <wiadomość> do użytkownika <użytkownik>");
+        Console.WriteLine("/dm <użytkownik> <wiadomość>\t\t\twyślij <wiadomość> do użytkownika <użytkownik>");
         Console.ForegroundColor = ConsoleColor.White;
     }
 

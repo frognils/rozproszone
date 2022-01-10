@@ -64,21 +64,23 @@ public class Server
 
         const int buf_size = 1024;
         byte[] bytes = new byte[buf_size];
-        string data = null;
+        string dataString = null;
+        string[] data = null;
         char command_prefix = '/';
         String nick;
         IPEndPoint address;
 
-        while (data != "\\quit")
+        while (dataString != "\\quit")
         {
             UdpClient sock = new UdpClient();
             sock.ExclusiveAddressUse = false;
             sock.Client.Bind(new IPEndPoint(IPAddress.Loopback, 2222));
             address = new IPEndPoint(0, 0);
             bytes = sock.Receive(ref address);
-            data = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
+            dataString = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
+            data = dataString.Split();
 
-            if (data[0] == command_prefix) handleCommand();
+            if (dataString[0] == command_prefix) handleCommand();
             else handleRegularMessage();
             sock.Close();
         }
@@ -105,7 +107,7 @@ public class Server
 
         void handleCommand()
         {
-            String command = data.Split()[0];
+            String command = data[0];
 
             switch (command)
             {
@@ -128,7 +130,7 @@ public class Server
 
         void login()
         {
-            nick = data.Split()[1];
+            nick = data[1];
             users[address] = new User(nick, address);
             Console.WriteLine($"{address} logged in as {nick}");
 
@@ -137,7 +139,7 @@ public class Server
 
         void createGroup()
         {
-            string groupName = data.Split()[1];
+            string groupName = data[1];
             groups.Add(groupName);
 
             Console.WriteLine($"{users[address].getName()} created group {groupName}");
@@ -167,7 +169,7 @@ public class Server
         {
             if (operation != "join" && operation != "leave") return;
 
-            string groupName = data.Split()[1];
+            string groupName = data[1];
 
             if (groups.Contains(groupName))
             {
@@ -208,8 +210,8 @@ public class Server
         {
             if (operation != "add" && operation != "remove") return;
 
-            string userName = data.Split()[1];
-            string groupName = data.Split()[2];
+            string userName = data[1];
+            string groupName = data[2];
             string serverMessage;
             User user = findUserByName(userName);
 
@@ -255,14 +257,14 @@ public class Server
 
         void messagePriv()
         {
-            string userName = data.Split()[1];
+            string userName = data[1];
             string serverMessage;
             User recivingUser = findUserByName(userName);
             User sendingUser = users[address];
 
-            List<string> messageList = new List<string>(data.Split());
+            List<string> messageList = new List<string>(data);
             messageList.RemoveRange(0, 2);
-            if (messageList == null || data.Split().Length < 3)
+            if (messageList == null || data.Length < 3)
             {
                 serverMessage = $"Message can't be empty\n";
                 Send(address, serverMessage);
@@ -291,8 +293,8 @@ public class Server
 
         void messageGroup()
         {
-            string groupName = data.Split()[1];
-            List<string> messageList = new List<string>(data.Split());
+            string groupName = data[1];
+            List<string> messageList = new List<string>(data);
             messageList.RemoveRange(0, 2); // index 0: command, index 1: groupName, from index 2 it is message
             string message = listToString(messageList, " ");
 
