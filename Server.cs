@@ -121,6 +121,7 @@ public class Server
                 case "/groupmessage": // same as /gm
                 case "/groupmsg": // same as /gm
                 case "/gm": messageGroup(); break;
+                case "/dm": // same as /pm
                 case "/pm": messagePriv(); break;
             }
         }
