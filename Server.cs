@@ -67,7 +67,7 @@ public class Server
         string dataString = null;
         string[] data = null;
         char command_prefix = '/';
-        String nick;
+        String nick = "";
         IPEndPoint address;
 
         while (dataString != "\\quit")
@@ -101,7 +101,7 @@ public class Server
 
         void handleRegularMessage()
         {
-            Console.WriteLine($"general message: '{data}' from {users[address].getName()}");
+            Console.WriteLine($"{nick}: {dataString}");
             messageAll();
         }
 
@@ -142,7 +142,7 @@ public class Server
             string groupName = data[1];
             groups.Add(groupName);
 
-            Console.WriteLine($"{users[address].getName()} created group {groupName}");
+            Console.WriteLine($"{nick} created group {groupName}");
             Send(address, $"You have created group {groupName}\n");
         }
 
@@ -182,7 +182,7 @@ public class Server
                     else
                     {
                         users[address].addGroup(groupName);
-                        Console.WriteLine($"{users[address].getName()} has joined group {groupName}");
+                        Console.WriteLine($"{nick} has joined group {groupName}");
                         Send(address, $"You have joined group {groupName}\n");
                     }
                 }
@@ -191,7 +191,7 @@ public class Server
                     if (users[address].isInGroup(groupName))
                     {
                         users[address].removeGroup(groupName);
-                        Console.WriteLine($"{users[address].getName()} has left group {groupName}");
+                        Console.WriteLine($"{nick} has left group {groupName}");
                         Send(address, $"You have left group {groupName}\n");
                     }
                     else
@@ -302,7 +302,7 @@ public class Server
             {
                 List<User> usersInGroup = findUsersByGroup(groupName);
                 List<IPEndPoint> addressesList = new List<IPEndPoint>();
-                string serverMessage = $"{users[address].getName()}({groupName}): {message}";
+                string serverMessage = $"{nick}({groupName}): {message}";
 
                 Console.WriteLine(serverMessage);
 
