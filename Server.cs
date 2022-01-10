@@ -85,13 +85,20 @@ public class Server
             sock.Close();
         }
 
-        async Task Send(IPEndPoint addr, string s)
+        async Task Send(IPEndPoint addr, string s, char color = 'y')
         {
             await Task.Run(() =>
             {
                 UdpClient sender = new UdpClient(2222);
                 sender.Connect("localhost", addr.Port);
-                bytes = Encoding.ASCII.GetBytes($"[{DateTime.Now}]\t{s}");
+                string dataToSend = $"[{DateTime.Now}] {s}";
+
+                if (color != 'y')
+                {
+                    dataToSend = $":{color}:{dataToSend}";
+                }
+
+                bytes = Encoding.ASCII.GetBytes(dataToSend);
                 sender.Send(bytes, bytes.Length);
                 sender.Close();
                 
@@ -279,12 +286,13 @@ public class Server
                 else if (recivingUser != sendingUser)
                 {
                     string message = listToString(messageList, " ");
-                    Task sending = Send(recivingUser.getAddress(), String.Join(":", sendingUser.getName(), message));
+                    serverMessage = $"{sendingUser.getName()}: {message}";
+                    Task sending = Send(recivingUser.getAddress(), serverMessage, 'c');
                     sending.Wait();
                 }
                 else
                 {
-                    serverMessage = $"You can't send message to yourself\n";
+                    serverMessage = $"You can't send message yourself\n";
                     Send(address, serverMessage);
                 }
             }
@@ -308,7 +316,7 @@ public class Server
 
                 usersInGroup.ForEach(async user =>
                 {
-                    Task sending = Send(user.getAddress(), serverMessage + "\n");
+                    Task sending = Send(user.getAddress(), serverMessage + "\n", 'g');
                     sending.Wait();
                 });
             }

@@ -53,9 +53,9 @@ public class Server
                 u.Send(b, b.Length);
                 ClearCurrentConsoleLine();
                 //Console.SetCursorPosition(0, Console.CursorTop - 1);
-                if (s[0] != command_prefix) Console.WriteLine($"[{DateTime.Now}]\t{s}");
-                else if (s.Split()[0] == "/pm")
-                    Console.WriteLine($"[{DateTime.Now}]\tto {s.Split()[1]}:{s.Replace(String.Join(" ", s.Split()[0], s.Split()[1]), "")}");
+                if (s[0] != command_prefix) Console.WriteLine($"[{DateTime.Now}] {s}");
+                else if (s.Split()[0] == "/pm" || s.Split()[0] == "/dm")
+                    Console.WriteLine($"[{DateTime.Now}] to {s.Split()[1]}:{s.Replace(String.Join(" ", s.Split()[0], s.Split()[1]), "")}");
             }
         }
     }
@@ -73,8 +73,24 @@ public class Server
 
                 b = u.Receive(ref other);
                 data = Encoding.ASCII.GetString(b, 0, b.Length);
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine(data);
+                char firstChar = data[0];
+                string message = data;
+                ConsoleColor color = ConsoleColor.Yellow;
+
+                // different coloring, used in direct and group messages
+                if (firstChar == ':') // then it is something like ":c:Text" instead of just "Text"
+                {
+                    message = message.Substring(3); // 0 ":", 1: color char, 2 ":"
+
+                    switch (data[1])
+                    {
+                        case 'c': color = ConsoleColor.Cyan; break;
+                        case 'g': color = ConsoleColor.Green; break;
+                    }
+                }
+
+                Console.ForegroundColor = color;
+                Console.WriteLine(message);
                 Console.ForegroundColor = ConsoleColor.White;
             }
 
