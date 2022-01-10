@@ -85,13 +85,18 @@ public class Server
             sock.Close();
         }
 
-        async Task Send(IPEndPoint addr, string s, char color = 'y')
+        async Task Send(IPEndPoint addr, string s, Boolean withDate = true, char color = 'y')
         {
             await Task.Run(() =>
             {
                 UdpClient sender = new UdpClient(2222);
                 sender.Connect("localhost", addr.Port);
-                string dataToSend = $"[{DateTime.Now}] {s}";
+                string dataToSend = s;
+
+                if (withDate)
+                {
+                    dataToSend = $"[{DateTime.Now}] {s}";
+                }
 
                 if (color != 'y')
                 {
@@ -148,9 +153,10 @@ public class Server
         {
             string groupName = data[1];
             groups.Add(groupName);
+            users[address].addGroup(groupName);
 
-            Console.WriteLine($"{nick} created group {groupName}");
-            Send(address, $"You have created group {groupName}");
+            Console.WriteLine($"{nick} created and joined group {groupName}");
+            Send(address, $"You have created and joined group {groupName}");
         }
 
         void listGroups(List<string> _groups)
@@ -161,15 +167,16 @@ public class Server
             {
                 for (int i = 0; i < _groups.Count; i++)
                 {
-                    listedGroups = listedGroups + _groups[i];
+                    listedGroups = listedGroups + _groups[i] + '\n';
                 }
+                listedGroups.Remove(listedGroups.Length - 3);
             }
             else
             {
                 listedGroups = "There are no groups yet.";
             }
 
-            Send(address, listedGroups);
+            Send(address, listedGroups, false);
         }
 
         void joinOrLeaveGroup(string operation)
@@ -184,7 +191,7 @@ public class Server
                 {
                     if (users[address].isInGroup(groupName))
                     {
-                        Send(address, $"You are a member of this group already");
+                        Send(address, $"You are a member of this group already", false);
                     }
                     else
                     {
@@ -203,13 +210,13 @@ public class Server
                     }
                     else
                     {
-                        Send(address, $"You are not a member of {groupName} group");
+                        Send(address, $"You are not a member of {groupName} group", false);
                     }
                 }
             }
             else
             {
-                Send(address, $"Group {groupName} does not exist");
+                Send(address, $"Group {groupName} does not exist", false);
             }
         }
 
@@ -220,6 +227,7 @@ public class Server
             string userName = data[1];
             string groupName = data[2];
             string serverMessage;
+            Boolean withDate = false;
             User user = findUserByName(userName);
 
             if (user == null)
@@ -232,6 +240,7 @@ public class Server
             }
             else
             {
+                withDate = true;
                 if (operation == "add")
                 {
                     user.addGroup(groupName);
@@ -246,7 +255,7 @@ public class Server
                 }
             }
 
-            Send(address, serverMessage);
+            Send(address, serverMessage, withDate);
         }
 
         void messageAll()
@@ -257,7 +266,7 @@ public class Server
                 if (user != sendingUser)
                 {
                     string serverMessage = $"{sendingUser.getName()}: {dataString}";
-                    Task sending = Send(user.getAddress(), serverMessage, 'w');
+                    Task sending = Send(user.getAddress(), serverMessage, true, 'w');
                     sending.Wait();
                 }
             }
@@ -275,26 +284,26 @@ public class Server
             if (messageList == null || data.Length < 3)
             {
                 serverMessage = $"Message can't be empty";
-                Send(address, serverMessage);
+                Send(address, serverMessage, false);
             }
             else
             {
                 if (recivingUser == null)
                 {
                     serverMessage = $"User {userName} not found";
-                    Send(address, serverMessage);
+                    Send(address, serverMessage, false);
                 }
                 else if (recivingUser != sendingUser)
                 {
                     string message = listToString(messageList, " ");
                     serverMessage = $"{sendingUser.getName()}: {message}";
-                    Task sending = Send(recivingUser.getAddress(), serverMessage, 'c');
+                    Task sending = Send(recivingUser.getAddress(), serverMessage, true, 'c');
                     sending.Wait();
                 }
                 else
                 {
                     serverMessage = $"You can't send message yourself";
-                    Send(address, serverMessage);
+                    Send(address, serverMessage, false);
                 }
             }
 
@@ -317,13 +326,13 @@ public class Server
 
                 usersInGroup.ForEach(async user =>
                 {
-                    Task sending = Send(user.getAddress(), serverMessage, 'g');
+                    Task sending = Send(user.getAddress(), serverMessage, true, 'g');
                     sending.Wait();
                 });
             }
             else
             {
-                Send(address, $"You are not a member of {groupName} group\n");
+                Send(address, $"You are not a member of {groupName} group\n", false);
             }
         }
 
