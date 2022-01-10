@@ -10,8 +10,6 @@ public class Server
     public static void ClearCurrentConsoleLine()
     {
         Console.SetCursorPosition(0, Console.CursorTop-1);
-        Console.Write(new string(' ', Console.WindowWidth));
-        Console.SetCursorPosition(0, Console.CursorTop);
     }
 
     static void help()
@@ -54,8 +52,12 @@ public class Server
                 ClearCurrentConsoleLine();
                 //Console.SetCursorPosition(0, Console.CursorTop - 1);
                 if (s[0] != command_prefix) Console.WriteLine($"[{DateTime.Now}] {s}");
-                else if (s.Split()[0] == "/pm" || s.Split()[0] == "/dm")
+                else if (s.Split()[0] == "/pm" || s.Split()[0] == "/dm") 
+                {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine($"[{DateTime.Now}] to {s.Split()[1]}:{s.Replace(String.Join(" ", s.Split()[0], s.Split()[1]), "")}");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
             }
         }
     }
@@ -86,6 +88,7 @@ public class Server
                     {
                         case 'c': color = ConsoleColor.Cyan; break;
                         case 'g': color = ConsoleColor.Green; break;
+                        case 'w': color = ConsoleColor.White; break;
                     }
                 }
 

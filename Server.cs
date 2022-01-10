@@ -141,7 +141,7 @@ public class Server
             users[address] = new User(nick, address);
             Console.WriteLine($"{address} logged in as {nick}");
 
-            Send(address, $"{nick} joined the server\n");
+            Send(address, $"{nick} joined the server");
         }
 
         void createGroup()
@@ -150,7 +150,7 @@ public class Server
             groups.Add(groupName);
 
             Console.WriteLine($"{nick} created group {groupName}");
-            Send(address, $"You have created group {groupName}\n");
+            Send(address, $"You have created group {groupName}");
         }
 
         void listGroups(List<string> _groups)
@@ -161,12 +161,12 @@ public class Server
             {
                 for (int i = 0; i < _groups.Count; i++)
                 {
-                    listedGroups = listedGroups + _groups[i] + '\n';
+                    listedGroups = listedGroups + _groups[i];
                 }
             }
             else
             {
-                listedGroups = "There are no groups yet.\n";
+                listedGroups = "There are no groups yet.";
             }
 
             Send(address, listedGroups);
@@ -184,13 +184,13 @@ public class Server
                 {
                     if (users[address].isInGroup(groupName))
                     {
-                        Send(address, $"You are a member of this group already\n");
+                        Send(address, $"You are a member of this group already");
                     }
                     else
                     {
                         users[address].addGroup(groupName);
                         Console.WriteLine($"{nick} has joined group {groupName}");
-                        Send(address, $"You have joined group {groupName}\n");
+                        Send(address, $"You have joined group {groupName}");
                     }
                 }
                 else
@@ -199,17 +199,17 @@ public class Server
                     {
                         users[address].removeGroup(groupName);
                         Console.WriteLine($"{nick} has left group {groupName}");
-                        Send(address, $"You have left group {groupName}\n");
+                        Send(address, $"You have left group {groupName}");
                     }
                     else
                     {
-                        Send(address, $"You are not a member of {groupName} group\n");
+                        Send(address, $"You are not a member of {groupName} group");
                     }
                 }
             }
             else
             {
-                Send(address, $"Group {groupName} does not exist\n");
+                Send(address, $"Group {groupName} does not exist");
             }
         }
 
@@ -224,24 +224,24 @@ public class Server
 
             if (user == null)
             {
-                serverMessage = $"User {userName} not found\n";
+                serverMessage = $"User {userName} not found";
             }
             else if (!groups.Contains(groupName))
             {
-                serverMessage = $"Group {groupName} does not exist\n";
+                serverMessage = $"Group {groupName} does not exist";
             }
             else
             {
                 if (operation == "add")
                 {
                     user.addGroup(groupName);
-                    serverMessage = $"You have added {userName} to group {groupName}\n";
+                    serverMessage = $"You have added {userName} to group {groupName}";
                     Console.WriteLine($"{userName} has been added to group {groupName} by {users[address].getName()}");
                 }
                 else
                 {
                     user.removeGroup(groupName);
-                    serverMessage = $"You have remove {userName} from group {groupName}\n";
+                    serverMessage = $"You have remove {userName} from group {groupName}";
                     Console.WriteLine($"{userName} has been removed from group {groupName} by {users[address].getName()}");
                 }
             }
@@ -256,7 +256,8 @@ public class Server
                 User sendingUser = users[address];
                 if (user != sendingUser)
                 {
-                    Task sending = Send(user.getAddress(), String.Join(":", sendingUser.getName(), data));
+                    string serverMessage = $"{sendingUser.getName()}: {dataString}";
+                    Task sending = Send(user.getAddress(), serverMessage, 'w');
                     sending.Wait();
                 }
             }
@@ -273,14 +274,14 @@ public class Server
             messageList.RemoveRange(0, 2);
             if (messageList == null || data.Length < 3)
             {
-                serverMessage = $"Message can't be empty\n";
+                serverMessage = $"Message can't be empty";
                 Send(address, serverMessage);
             }
             else
             {
                 if (recivingUser == null)
                 {
-                    serverMessage = $"User {userName} not found\n";
+                    serverMessage = $"User {userName} not found";
                     Send(address, serverMessage);
                 }
                 else if (recivingUser != sendingUser)
@@ -292,7 +293,7 @@ public class Server
                 }
                 else
                 {
-                    serverMessage = $"You can't send message yourself\n";
+                    serverMessage = $"You can't send message yourself";
                     Send(address, serverMessage);
                 }
             }
@@ -316,7 +317,7 @@ public class Server
 
                 usersInGroup.ForEach(async user =>
                 {
-                    Task sending = Send(user.getAddress(), serverMessage + "\n", 'g');
+                    Task sending = Send(user.getAddress(), serverMessage, 'g');
                     sending.Wait();
                 });
             }
