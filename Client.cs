@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 public class Server
 {
 
+    public static void ClearCurrentConsoleLine()
+    {
+        Console.SetCursorPosition(0, Console.CursorTop-1);
+        Console.Write(new string(' ', Console.WindowWidth));
+        Console.SetCursorPosition(0, Console.CursorTop);
+    }
+
     static void help()
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
@@ -43,11 +50,11 @@ public class Server
                 incorrect = false;
                 b = Encoding.ASCII.GetBytes(s);
                 u.Send(b, b.Length);
-                Console.SetCursorPosition(0, Console.CursorTop - 1);
-                if (s[0] != command_prefix)
-                {
-                    Console.WriteLine($"[{DateTime.Now}]\t{s}");
-                }
+                ClearCurrentConsoleLine();
+                //Console.SetCursorPosition(0, Console.CursorTop - 1);
+                if (s[0] != command_prefix) Console.WriteLine($"[{DateTime.Now}]\t{s}");
+                else if (s.Split()[0] == "/pm")
+                    Console.WriteLine($"[{DateTime.Now}]\tto {s.Split()[1]}:{s.Replace(String.Join(" ", s.Split()[0], s.Split()[1]), "")}");
             }
         }
     }
