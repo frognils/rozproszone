@@ -61,9 +61,7 @@ public class Server
         Dictionary<IPEndPoint, User> users = new Dictionary<IPEndPoint, User>();
         List<string> groups = new List<string>();
 
-        UdpClient sock = new UdpClient();
-        sock.ExclusiveAddressUse = false;
-        sock.Client.Bind(new IPEndPoint(IPAddress.Loopback, 2222));
+
         const int buf_size = 1024;
         byte[] bytes = new byte[buf_size];
         string data = null;
@@ -73,12 +71,16 @@ public class Server
 
         while (data != "\\quit")
         {
+            UdpClient sock = new UdpClient();
+            sock.ExclusiveAddressUse = false;
+            sock.Client.Bind(new IPEndPoint(IPAddress.Loopback, 2222));
             address = new IPEndPoint(0, 0);
             bytes = sock.Receive(ref address);
             data = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
 
             if (data[0] == command_prefix) handleCommand();
             else handleRegularMessage();
+            sock.Close();
         }
 
         async Task Send(IPEndPoint addr, string s)
@@ -90,6 +92,7 @@ public class Server
                 bytes = Encoding.ASCII.GetBytes($"[{DateTime.Now}]\t{s}");
                 sender.Send(bytes, bytes.Length);
                 sender.Close();
+                
             });
 
         }
