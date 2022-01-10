@@ -9,7 +9,7 @@ public class Server
 
     public static void ClearCurrentConsoleLine()
     {
-        Console.SetCursorPosition(0, Console.CursorTop-1);
+        Console.SetCursorPosition(0, Console.CursorTop - 1);
         Console.Write(new string(' ', Console.WindowWidth));
         Console.SetCursorPosition(0, Console.CursorTop - 1);
     }
@@ -46,7 +46,13 @@ public class Server
             string s = Console.ReadLine();
             if (s != "")
             {
-                if (msg == "login: ") s = "/login " + s;
+                if (msg == "login: ")
+                {
+                    s = "/login " + s;
+                    b = Encoding.ASCII.GetBytes(s);
+                    u.Send(b, b.Length);
+                    return;
+                }
                 else if (s == "/help") help();
                 incorrect = false;
                 b = Encoding.ASCII.GetBytes(s);
@@ -77,9 +83,17 @@ public class Server
 
                 b = u.Receive(ref other);
                 data = Encoding.ASCII.GetString(b, 0, b.Length);
+                string invalidLoginMsg = "This name is already taken";
                 char firstChar = data[0];
                 string message = data;
                 ConsoleColor color = ConsoleColor.Yellow;
+                Console.WriteLine(message);
+
+                if (message == invalidLoginMsg || message == $":w:{invalidLoginMsg}")
+                {
+                    printLogin(b, u);
+                    return;
+                }
 
                 // different coloring, used in direct and group messages
                 if (firstChar == ':') // then it is something like ":c:Text" instead of just "Text"
@@ -102,6 +116,12 @@ public class Server
         });
     }
 
+    static void printLogin(byte[] bytes, UdpClient sock)
+    {
+        Send("login: ", bytes, sock);
+        Receive(bytes, sock);
+    }
+
 
 
     public static void Main()
@@ -112,8 +132,8 @@ public class Server
         const int buf_size = 1024;
         byte[] bytes = new byte[buf_size];
 
-        Send("login: ", bytes, sock);
-        Receive(bytes, sock);
+        printLogin(bytes, sock);
+
         while (true)
         {
             Send("", bytes, sock);

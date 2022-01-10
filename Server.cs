@@ -143,6 +143,13 @@ public class Server
         void login()
         {
             nick = data[1];
+
+            //if (findUserByName(nick) != null)
+            //{
+            //   Send(address, $"This name is already taken", false);
+            //    return;
+            //}
+
             users[address] = new User(nick, address);
             Console.WriteLine($"{address} logged in as {nick}");
 
@@ -152,6 +159,13 @@ public class Server
         void createGroup()
         {
             string groupName = data[1];
+
+            if (groups.Contains(groupName))
+            {
+                Send(address, $"Group with this name already exists", false);
+                return;
+            }
+
             groups.Add(groupName);
             users[address].addGroup(groupName);
 
@@ -169,7 +183,6 @@ public class Server
                 {
                     listedGroups = listedGroups + _groups[i] + '\n';
                 }
-                listedGroups.Remove(listedGroups.Length - 3);
             }
             else
             {
@@ -250,7 +263,7 @@ public class Server
                 else
                 {
                     user.removeGroup(groupName);
-                    serverMessage = $"You have remove {userName} from group {groupName}";
+                    serverMessage = $"You have removed {userName} from group {groupName}";
                     Console.WriteLine($"{userName} has been removed from group {groupName} by {users[address].getName()}");
                 }
             }
