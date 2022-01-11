@@ -80,6 +80,8 @@ public class Server
             dataString = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
             data = dataString.Split();
 
+            Console.WriteLine(dataString);
+
             if (dataString[0] == command_prefix) handleCommand();
             else handleRegularMessage();
             sock.Close();
@@ -144,11 +146,11 @@ public class Server
         {
             nick = data[1];
 
-            //if (findUserByName(nick) != null)
-            //{
-            //   Send(address, $"This name is already taken", false);
-            //    return;
-            //}
+            if (findUserByName(nick) != null)
+            {
+                Send(address, $"This name is already taken", false);
+                return;
+            }
 
             users[address] = new User(nick, address);
             Console.WriteLine($"{address} logged in as {nick}");

@@ -9,7 +9,7 @@ public class Server
 
     public static void ClearCurrentConsoleLine()
     {
-        Console.SetCursorPosition(0, Console.CursorTop - 1);
+        Console.SetCursorPosition(0, Console.CursorTop -1);
         Console.Write(new string(' ', Console.WindowWidth));
         Console.SetCursorPosition(0, Console.CursorTop - 1);
     }
@@ -46,13 +46,7 @@ public class Server
             string s = Console.ReadLine();
             if (s != "")
             {
-                if (msg == "login: ")
-                {
-                    s = "/login " + s;
-                    b = Encoding.ASCII.GetBytes(s);
-                    u.Send(b, b.Length);
-                    return;
-                }
+                if (msg.Contains("login: ")) s = "/login " + s;
                 else if (s == "/help") help();
                 incorrect = false;
                 b = Encoding.ASCII.GetBytes(s);
@@ -83,14 +77,11 @@ public class Server
 
                 b = u.Receive(ref other);
                 data = Encoding.ASCII.GetString(b, 0, b.Length);
-                string invalidLoginMsg = "This name is already taken";
                 char firstChar = data[0];
                 string message = data;
                 ConsoleColor color = ConsoleColor.Yellow;
-                Console.WriteLine(message);
 
-                if (message == invalidLoginMsg || message == $":w:{invalidLoginMsg}")
-                {
+                if (message == "This name is already taken") {
                     printLogin(b, u);
                     return;
                 }
@@ -122,8 +113,6 @@ public class Server
         Receive(bytes, sock);
     }
 
-
-
     public static void Main()
     {
 
@@ -133,7 +122,7 @@ public class Server
         byte[] bytes = new byte[buf_size];
 
         printLogin(bytes, sock);
-
+       
         while (true)
         {
             Send("", bytes, sock);
